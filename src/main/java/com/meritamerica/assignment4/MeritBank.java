@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,9 +23,14 @@ public class MeritBank {
 		
 	}
 	
-	public static String formattDate(Date date) {
+	public static String formatDate(Date date) {
 		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 		return formatter.format(date);
+	}
+	
+	public static String decimalFormat(double numb) {
+		DecimalFormat df = new DecimalFormat("#.####");
+		return df.format(numb);
 	}
 	
 	public static String formatNumber(double d) {
@@ -330,7 +336,9 @@ public class MeritBank {
 	}
 	
 	public static double FutureValue(double amount, int years, double interestRate) {
+		double futureVal = amount * Math.pow(1 + interestRate, years);
 		
+		return futureVal;
 		
 	}
 

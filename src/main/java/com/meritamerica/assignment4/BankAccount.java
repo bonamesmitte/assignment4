@@ -54,7 +54,7 @@ public class BankAccount {
 	public String writeToString() {
 		DecimalFormat df = new DecimalFormat("#.####");
 		String data = this.getAccountNumber() + "," + df.format(this.getBalance()) + "," 
-				+ df.format(this.getInterestRate()) + "," + MeritBank.formattDate(this.getOpenedOn());
+				+ df.format(this.getInterestRate()) + "," + MeritBank.formatDate(this.getOpenedOn());
 //		String.format("%.####", this.getInterestRate())
 //		MeritBank.formatNumber(this.getInterestRate()) 
 		return data;

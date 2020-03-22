@@ -10,7 +10,15 @@ public abstract class Transaction {
 	
 	public Transaction(BankAccount sourceAccount, BankAccount targetAccount, double amount) {
 		this.sourceAccount = sourceAccount;
-		this.targetAccount = t
+		this.targetAccount = targetAccount;
+		this.amount = amount;
+	}
+	
+	// this constructor is used when an account is created so there is no source account
+	public Transaction (BankAccount targetAccount, double amount) {
+		this.sourceAccount = null;
+		this.targetAccount = targetAccount;
+		this.amount = amount;
 	}
 	                   
 	public BankAccount getSourceAccount() {
@@ -39,7 +47,15 @@ public abstract class Transaction {
 	public void setTransactionDate(java.util.Date date) {
 		this.date = date;
 	}
-	public String writeToString();
+	public String  writeToString() {
+		String sourceAccNumb = sourceAccount != null ? String.valueOf(this.sourceAccount.getAccountNumber()) : "-1";
+		String targetAccNumb = String.valueOf(this.targetAccount.getAccountNumber());
+		String amount = String.valueOf(this.amount);
+		String date = MeritBank.formatDate(this.date);
+		String data = sourceAccNumb + "," + targetAccNumb + "," + amount + "," + date + "\n";
+		
+		return data;
+	};
 	public static Transaction readFromString(String transactionDataString);
 
 	
