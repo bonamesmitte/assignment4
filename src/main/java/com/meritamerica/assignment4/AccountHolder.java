@@ -223,12 +223,16 @@ Should also add a deposit transaction with the opening balance */
 	    }
 	    
 	    // Should also add a deposit transaction with the opening balance
-	    public CDAccount addCDAccount(CDOffering offering, double openingBalance) {
+	    public CDAccount addCDAccount(CDOffering offering, double openingBalance) throws ExceedsFraudSuspicionLimitException {
 	    	
 	    	
 	    	this.numberOfCDAs++;
 	    		    	
 	    	CDAccount acc = new CDAccount(offering, openingBalance);
+	    	
+	    	// check fraud
+	    	DepositTransaction tran = new DepositTransaction(acc, openingBalance, new Date());
+	    	MeritBank.processDepositTransaction(tran);
 	    	
 	    	//add this transaction to this account
 	    	acc.addTransaction(new DepositTransaction(acc, openingBalance, new Date()));

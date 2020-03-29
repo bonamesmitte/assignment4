@@ -481,4 +481,10 @@ public class MeritBank {
 		return true;
 	}
 	
+	public static void processDepositTransaction(Transaction transaction) throws ExceedsFraudSuspicionLimitException{
+		if (Math.abs(transaction.getAmount()) > 1000) {
+			throw new ExceedsFraudSuspicionLimitException();
+		}
+	}
+	
 }
