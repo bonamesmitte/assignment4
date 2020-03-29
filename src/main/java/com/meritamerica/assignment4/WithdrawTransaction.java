@@ -1,10 +1,14 @@
 package com.meritamerica.assignment4;
 
-public class WithdrawTransaction {
+import java.util.Date;
+
+public class WithdrawTransaction extends Transaction {
 
 	
 	
-	WithdrawTransaction(BankAccount targetAccount, double amount)
+	WithdrawTransaction(BankAccount targetAccount, double amount, Date date) {
+		super(targetAccount, amount, date);
+	}
 	
 	
 }

@@ -1,5 +1,7 @@
 package com.meritamerica.assignment4;
 
+import java.util.Queue;
+
 /**
  * This class has a public modifier and the main method which is the entry point of Merit America Bank. 
  * It calls and uses other classes and methods.
@@ -8,11 +10,11 @@ package com.meritamerica.assignment4;
 
 public class MeritAmericaBankApp {
 	public static void main(String[] args) {
-//		try {
-//			// read files
-//			MeritBank.readFromFile("test.txt");
+		try {
+			// read files
+//			boolean result = MeritBank.readFromFile("testRead.txt");
 //			
-//			
+//			System.out.println(result);
 //			// test getting CDOfferings data
 //			CDOffering[] offerings = MeritBank.getCDOfferings();
 //			for (CDOffering o: offerings) {
@@ -31,11 +33,21 @@ public class MeritAmericaBankApp {
 //					System.out.println(checking.getAccountNumber() + ", " + checking.getBalance() + "," + checking.getInterestRate());
 //				}
 //			}
-//		} catch(Exception e) {
-//			System.out.println(e);
-//		}
+			
+			AccountHolder accountHolder = new AccountHolder(
+	            	"Sadiq",
+	            	"",
+	            	"Manji",
+	            	"123456789");
+	    	
+	    	CDAccount cdAccount = accountHolder.addCDAccount(new CDOffering(5, 0.03), 10000);
+//	        
+	        System.out.println(cdAccount.withdraw(500.0));
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 //		
-//		// test writer
+		// test writer
 //		MeritBank.writeToFile("writingTest.txt");
 		
 		
@@ -53,9 +65,23 @@ public class MeritAmericaBankApp {
 //	      }
     	
 		// Used Class.method to read data
-    	boolean result = MeritBank.readFromFile("test.txt");
+//    	boolean result = MeritBank.readFromFile("test.txt");
 		
-    	System.out.println(result);
+//    	System.out.println(result);
+//		try {
+//			AccountHolder accountHolder = new AccountHolder(
+//	            	"Sadiq",
+//	            	"",
+//	            	"Manji",
+//	            	"123456789");
+//	    	SavingsAccount savingsAccount = accountHolder.addSavingsAccount(50);
+//	    	System.out.println("hello3");
+//	    	System.out.println(savingsAccount.withdraw(500.00));
+//	    	
+//		} catch(Exception e) {
+//			System.out.println(e);
+//		}
+		
 	}
 	     
 }

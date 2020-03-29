@@ -160,7 +160,7 @@ public class SolutionTest {
             	"123456789");
     	
     	CDAccount cdAccount = accountHolder.addCDAccount(new CDOffering(5, 0.03), 10000);
-        
+
         assertEquals(false, cdAccount.withdraw(500.0));
     }
     

@@ -1,13 +1,9 @@
 package com.meritamerica.assignment4;
 
-public class DepositTransaction {
-	private BankAccount account;
-	private double depositAmount;
-	
-	DepositTransaction(BankAccount targetAccount, double amount) {
-		this.account = targetAccount;
-		this.depositAmount = amount;
-	}
-	
-	
+import java.util.Date;
+
+public class DepositTransaction extends Transaction {
+	DepositTransaction(BankAccount targetAccount, double amount, Date date) {
+		super(targetAccount, amount, date);
+	}	
 }

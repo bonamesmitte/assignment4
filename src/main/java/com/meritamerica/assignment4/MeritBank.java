@@ -15,12 +15,29 @@ public class MeritBank {
 	private static CDOffering[] CDOfferings = null;
 	
 	private static int numbOfAccountHolder = 0;
+	private static FraudQueue fraudQueue = new FraudQueue();
 	
 	static void addAccountHolder(AccountHolder accountHolder) {
 		MeritBank.numbOfAccountHolder++;
 		
 		MeritBank.accountHolders[MeritBank.numbOfAccountHolder - 1] = accountHolder;
 		
+	}
+	
+	public static BankAccount findAccount(long ID) {
+		if (accountHolders != null) {
+			for (int i = 0; i < accountHolders.length; i++) {
+				if (accountHolders[i] == null) {
+					break;
+				}
+				BankAccount acc = accountHolders[i].findAccount(ID);
+				if (acc != null) {
+					return acc;
+				}
+			}
+		}
+		
+		return null;
 	}
 	
 	public static String formatDate(Date date) {
@@ -127,7 +144,12 @@ public class MeritBank {
 		            	
 		            	for (int x = 0; x < numOfCheckings; x++) {
 		            		CheckingAccount checkAcc = CheckingAccount.readFromString(reader.readLine());
+		            		// process transaction inside the account
+		            		MeritBank.readTransactions(reader, checkAcc);
+		            		
+		            		
 		            		acc.addCheckingAccount(checkAcc);
+		            		
 		            	}
 		            	// process saving account
 		            	line = reader.readLine();
@@ -137,6 +159,10 @@ public class MeritBank {
 		            	
 		            	for (int y = 0; y < numbOfSavings; y++) {
 		            		SavingsAccount savingAcc = SavingsAccount.readFromString(reader.readLine());
+		            		
+		            		// process transaction inside the account
+		            		MeritBank.readTransactions(reader, savingAcc);
+		            		
 		            		acc.addSavingsAccount(savingAcc);
 		            	}	            	
 		            	
@@ -147,11 +173,16 @@ public class MeritBank {
 		            	
 		            	for (int z = 0; z < numbOfCDAccounts; z++) {
 		            		CDAccount CDOAcc = CDAccount.readFromString(reader.readLine());
+		            		
+		            		// process transaction inside the account
+		            		MeritBank.readTransactions(reader, CDOAcc);
+		            		
 		            		acc.addCDAccount(CDOAcc);
 		            	}
 		            	
 		            	// add account holder to the array
 		            	accountHolders[j] = acc;
+		       
 	            	} catch(Exception e) {
 	            		e.printStackTrace();
 	            		System.out.println("something worng");
@@ -159,13 +190,83 @@ public class MeritBank {
 	            	}	
 	            }
 	            
+	            
+	            // read FraudQueue
+            	MeritBank.readFraudQueue(reader);
+	            
 	            reader.close();
 	        } catch (Exception e) {
 	        	System.out.println("Exception");
+	        	e.printStackTrace();
 	            return false;
 	        }
 		 
 		 return true;
+	}
+	
+	private static void readFraudQueue(BufferedReader reader) throws IOException, ParseException {
+		int pendingNum = Integer.parseInt(reader.readLine());
+	
+		for (int i= 0; i < pendingNum; i++) {
+			MeritBank.fraudQueue.addTransaction(readTransactionType(reader.readLine()));
+		}
+	}
+	
+	private static Transaction readTransactionType(String line) throws ParseException {
+		String[] datas = line.split(",");
+		
+		// Create a date formatter
+		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+		
+		int sourceID = Integer.parseInt(datas[0]);
+		int targetID = Integer.parseInt(datas[1]);
+		BankAccount targetAcc = MeritBank.findAccount(targetID);
+		double amount = Integer.parseInt(datas[2]);
+		Date date = formatter.parse(datas[3]);
+		
+		// if this is not a transfer transaction
+		if (sourceID != -1) {
+			if (amount >= 0) {
+				return new DepositTransaction(targetAcc, amount, date);
+			} else {
+				return new WithdrawTransaction(targetAcc, amount, date);
+			}
+		} else {
+			// if this is a transfer transaction
+			BankAccount sourceAcc = MeritBank.findAccount(sourceID);
+			return new TransferTransaction(sourceAcc, targetAcc, amount, date);
+		}
+	}
+	
+	private static void readTransactions(BufferedReader reader, BankAccount acc) throws IOException, ParseException, 
+	  ExceedsFraudSuspicionLimitException, NegativeAmountException, ExceedsAvailableBalanceException {
+		int numOfTransaction = Integer.valueOf(reader.readLine()); // number of transactions
+		
+		for (int i = 0; i < numOfTransaction; i++) {
+			String line = reader.readLine();
+			String[] datas = line.split(",");
+			
+			// Create a date formatter
+			SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+			
+			int sourceID = Integer.parseInt(datas[0]);
+			int targetID = Integer.parseInt(datas[1]);
+			double amount = Double.parseDouble(datas[2]);
+			Date date = formatter.parse(datas[3]);
+			
+			// if this is not a transfer transaction
+			if (sourceID != -1) {
+				if (amount >= 0) {
+					acc.addTransaction(new DepositTransaction(acc, amount, date));
+				} else {
+					acc.addTransaction(new WithdrawTransaction(acc, amount, date));
+				}
+			} else {
+				// if this is a transfer transaction
+				BankAccount sourceAcc = MeritBank.findAccount(sourceID);
+				acc.addTransaction(new TransferTransaction(sourceAcc, acc, amount, date));
+			}
+		}
 	}
 	
 	private static String addSavingData(AccountHolder acc) {
@@ -335,21 +436,49 @@ public class MeritBank {
 		return total;
 	}
 	
-	public static double FutureValue(double amount, int years, double interestRate) {
-		double futureVal = amount * Math.pow(1 + interestRate, years);
-		
-		return futureVal;
+	public static double recursionFutureValue(double amount, int years, double interestRate) {
+		if (years == 0) {
+			return amount;
+		} else {
+			return amount * (1 + interestRate) * recursionFutureValue(1, years - 1, interestRate);
+		}
 		
 	}
 
-	
-	
-	
 	public static double futureValue(double presentValue, double interestRate, int term) {
 		double futureVal = presentValue * Math.pow(1 + interestRate, term);
 		
 		return futureVal;
 	}
 	
+	public static boolean processTransaction(Transaction transaction) throws NegativeAmountException, ExceedsFraudSuspicionLimitException, 
+	ExceedsAvailableBalanceException {
+		
+		// if amount > 1000
+		if (Math.abs(transaction.getAmount()) > 1000) {
+			throw new ExceedsFraudSuspicionLimitException();
+		}
+		
+		// if this is not a transfer transaction
+		if (transaction.getSourceAccount() == null) {
+			// if the withdraw amount larger than the balance of the targetAccount
+			if (transaction.getAmount() + transaction.getTargetAccount().getBalance() < 0) {
+				throw new ExceedsAvailableBalanceException();
+			}
+			
+			
+		} else { // if this is a transfer transaction
+			if (transaction.getAmount() <= 0) {
+				throw new NegativeAmountException();
+			}
+			
+			// if the transfer amount larger than the balance of the sourceAccount
+			if (transaction.getAmount() + transaction.getSourceAccount().getBalance() < 0) {
+				throw new ExceedsAvailableBalanceException();
+			}
+			
+		}
+		return true;
+	}
 	
 }

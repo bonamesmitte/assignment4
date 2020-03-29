@@ -4,7 +4,9 @@ package com.meritamerica.assignment4;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class BankAccount {
 	
@@ -13,19 +15,14 @@ public class BankAccount {
 	private double balance;
 	private double interestRate;
 	private Date openDate;
+	private ArrayList<Transaction> transactions;
 	
 	BankAccount(double balance, double interestRate) {
-		this.balance = balance;
-		this.interestRate = interestRate;
-		openDate = new Date();
-		accountNumber = MeritBank.getNextAccountNumber();
+		this(MeritBank.getNextAccountNumber(), balance, interestRate, new Date());
 	}
 	
 	BankAccount(double balance, double interestRate, Date accountOpenedOn) {
-		this.balance = balance;
-		this.interestRate = interestRate;
-		this.openDate = accountOpenedOn;
-		accountNumber = MeritBank.getNextAccountNumber();
+		this(MeritBank.getNextAccountNumber(), balance, interestRate, accountOpenedOn);
 	}
 	
 	BankAccount(long accountNumber, double balance, double interestRate, Date accountOpenedOn) {
@@ -34,6 +31,8 @@ public class BankAccount {
 		this.balance = balance;
 		this.interestRate = interestRate;
 		this.openDate = accountOpenedOn;
+		
+		transactions = new ArrayList<>();
 	}
 	
 	// don't know the purpose of using BankAccount static readFromString
@@ -46,7 +45,7 @@ public class BankAccount {
 		int accNumb = Integer.parseInt(data[0]);
 		double balance = Double.parseDouble(data[1]);
 		double interestRate = Double.parseDouble(data[2]);
-		Date openDate = formatter.parse(data[3]);
+		Date openDate = formatter.parse(data[3]);	// parse the date into date object
 	    
 	    return new BankAccount(accNumb, balance, interestRate, openDate);
 	}
@@ -103,5 +102,23 @@ public class BankAccount {
 		return futureVal;
 	}
 	
+	public List<Transaction> getTransactions() {
+		return this.transactions;
+	}
+	
+	public void addTransaction(Transaction tran){
+//		try {
+//			if (MeritBank.processTransaction(tran)) {
+//				transactions.add(tran);
+//			}
+//		} catch(Exception e) {
+//			e.printStackTrace();
+//			transactions.add(tran);
+//		}
+		
+		transactions.add(tran);
+		
+		
+	}
 
 }

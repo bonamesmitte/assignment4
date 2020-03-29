@@ -1,6 +1,8 @@
 package com.meritamerica.assignment4;
 
-        // Declare a class that implements an interface 
+import java.util.Date;
+
+// Declare a class that implements an interface 
 public class AccountHolder implements Comparable{ 
 	
 	    // Class member variables 
@@ -11,12 +13,6 @@ public class AccountHolder implements Comparable{
 	    private CheckingAccount[] checkingAccounts;
 	    private SavingsAccount[] savingsAccounts;
 	    private CDAccount[] CDAccounts;
-	    private DepositTransaction []  checkingTrans;
-	    private DepositTransaction []  savingsTrans;
-	    private DepositTransaction []  cdTrans;
-	    private int numOfCheckingTrans;
-	    private int numOfSavingsTrans;
-	    private int numOfCDTrans;
 	    
 	    // keep track of numbers of checkings and saving accounts
 	    private int numberOfCheckings = 0;
@@ -38,14 +34,7 @@ public class AccountHolder implements Comparable{
 	    
 	    // A constructor and parameters 
 	    // [o, p, ,] [3]
-	    AccountHolder (){
-	    	this.numOfCheckingTrans = 0;
-	    	this.numOfSavingsTrans = 0;
-	    	this.numOfCDTrans = 0;
-	    	
-	    	checkingTrans = new DepositTransaction[10];
-	    	savingsTrans = new DepositTransaction[10];
-	    	cdTrans = new DepositTransaction[10];	    	
+	    AccountHolder (){	    	
 	    }
 	    AccountHolder(String firstName, String middleName, String lastName, String ssn){
 	    	this();
@@ -101,29 +90,18 @@ public class AccountHolder implements Comparable{
 	    public void setSSN(String ssn) {
 	        this.ssn = ssn;
 	    }
-
-//	    @Override
-//	    public String toString() {
-//	        return "First Name:" + this.firstName + "\n"  + "Middle Name:" + this.middleName +  "\n"  + "Last Name:" + this.lastName
-//	                +  "\n" + "SSN:" + this.ssn +  "\n"  +"Checking Account Balance:" + this.checkingAccount.getBalance() +
-//	                "\n" + "Savings Account Balance:" + this.savingsAccount.getBalance();
-//	    }
-	    
 	    
 	    public CheckingAccount addCheckingAccount(double openingBalance) throws ExceedsCombinedBalanceLimitException {
-
-	    	
 	    	if (canOpen(openingBalance)) {
 		    	// increment number of checkings
 		    	this.numberOfCheckings++;
 		    	
 		    	CheckingAccount acc = new CheckingAccount(openingBalance);
 		    	
-		    	this.checkingAccounts[this.numberOfCheckings - 1] = acc;
+		    	// add this transaction inside that account
+		    	acc.addTransaction(new DepositTransaction(acc, openingBalance, new Date()));
 		    	
-//		    	this.checkingTrans[this.numOfCheckingTrans] = new DepositTransaction(acc, openingBalance);
-//		    	
-//		    	this.numOfCheckingTrans++;
+		    	this.checkingAccounts[this.numberOfCheckings - 1] = acc;	    	
 		    	
 		    	return checkingAccounts[this.numberOfCheckings - 1];
 	    	} else {
@@ -138,15 +116,16 @@ Should also add a deposit transaction with the opening balance */
 	    public CheckingAccount addCheckingAccount(CheckingAccount checkingAccount) throws ExceedsCombinedBalanceLimitException {
 	    	// check the opening account condition
 	    	if (canOpen(checkingAccount.getBalance())) {
+	    		// add this transaction inside that account
+		    	double amount = checkingAccount.getBalance();
+		    	checkingAccount.addTransaction(new DepositTransaction(checkingAccount, amount, new Date() ));
+	    		
 		    	// increment numberOfCheckings currently have
 		    	this.numberOfCheckings++;
 		    	
 		    	this.checkingAccounts[this.numberOfCheckings - 1] = checkingAccount;
 		    	
-		    	// add a deposit transaction with the opening balance
-//		    	this.checkingTrans[this.numOfCheckingTrans] = new DepositTransaction(checkingAccount, checkingAccount.getBalance());
-//		    	
-//		    	this.numOfCheckingTrans++;
+		    	
 		    	
 		    	return this.checkingAccounts[this.numberOfCheckings - 1];
 	    	} else {
@@ -181,11 +160,10 @@ Should also add a deposit transaction with the opening balance */
 		    	
 		    	SavingsAccount sav = new SavingsAccount(openingBalance);
 		    	
-		    	this.savingsAccounts[this.numberOfCheckings -1] = sav;
+		    	// add this transaction inside that account
+		    	sav.addTransaction(new DepositTransaction(sav, openingBalance, new Date()));
 		    	
-//		    	this.savingsTrans[this.numOfSavingsTrans] = new DepositTransaction(sav, openingBalance);
-//		    	
-//		    	this.numOfSavingsTrans++;
+		    	this.savingsAccounts[this.numberOfSavings -1] = sav;
 		    	
 		    	this.savingsAccounts[this.numberOfSavings - 1] = new SavingsAccount(openingBalance);
 		    	
@@ -202,6 +180,11 @@ Should also add a deposit transaction with the opening balance */
 	    public SavingsAccount addSavingsAccount(SavingsAccount savingsAccount) throws ExceedsCombinedBalanceLimitException {
 	    	// check if total amount is greater than 250, 000
 	    	if (canOpen(savingsAccount.getBalance())) {
+	    		// add this transaction inside that account
+		    	double amount = savingsAccount.getBalance();
+		    	savingsAccount.addTransaction(new DepositTransaction(savingsAccount, amount, new Date()));
+	    		
+		    	// increment total of saving accounts
 	    		this.numberOfSavings++;
 		    	
 		    	this.savingsAccounts[this.numberOfSavings - 1] = savingsAccount;
@@ -241,17 +224,29 @@ Should also add a deposit transaction with the opening balance */
 	    
 	    // Should also add a deposit transaction with the opening balance
 	    public CDAccount addCDAccount(CDOffering offering, double openingBalance) {
-	    	this.numberOfCDAs++;
 	    	
-	    	this.CDAccounts[this.numberOfCDAs - 1] = new CDAccount(offering, openingBalance);
+	    	
+	    	this.numberOfCDAs++;
+	    		    	
+	    	CDAccount acc = new CDAccount(offering, openingBalance);
+	    	
+	    	//add this transaction to this account
+	    	acc.addTransaction(new DepositTransaction(acc, openingBalance, new Date()));
+	    	
+	    	this.CDAccounts[this.numberOfCDAs - 1] = acc;
 	    	
 	    	return this.CDAccounts[this.numberOfCDAs - 1];
 	    	
 	    }
 	    
 	    //Should also add a deposit transaction with the opening balance
-	    public CDAccount addCDAccount(CDAccount cdAccount) {
+	    public CDAccount addCDAccount(CDAccount cdAccount) throws ExceedsFraudSuspicionLimitException {
+	    	
 	    	this.numberOfCDAs++;
+	    	
+	    	//add this transaction to accounts
+	    	double amount = cdAccount.getBalance();
+	    	cdAccount.addTransaction(new DepositTransaction(cdAccount, amount, new Date()));
 	    	
 	    	this.CDAccounts[this.numberOfCDAs - 1] = cdAccount;
 	    	
@@ -280,12 +275,12 @@ Should also add a deposit transaction with the opening balance */
 	    }
 	    
 	    // This method validates that the total amount of combined balance and deposit is less than $250,000.00
-	    private boolean canOpen(double deposit) {
+	    private boolean canOpen(double deposit) throws ExceedsCombinedBalanceLimitException {
 	    	if (this.getCombinedBalance() + deposit < 250000.00) {
 	    		return true;
 	    	} else {
 	    		System.out.println("Total is over 250,000. Can not open a new account");
-	    		return false;
+	    		throw new ExceedsCombinedBalanceLimitException();
 	    	}
 	    }
 
@@ -298,5 +293,28 @@ Should also add a deposit transaction with the opening balance */
 				return 1;
 			else
 				return 0;
+		}
+		
+		// find the account has that ID in this account holder and return that account, if can not find, return null
+		public BankAccount findAccount(long ID) {
+			for (int i = 0; i < this.numberOfCheckings; i++) {
+				if (this.checkingAccounts[i].getAccountNumber() == ID) {
+					return this.checkingAccounts[i];
+				}
+			}
+			
+			for (int j = 0; j < this.numberOfSavings; j++) {
+				if (this.savingsAccounts[j].getAccountNumber() == ID) {
+					return this.savingsAccounts[j];
+				}
+			}
+			
+			for (int j = 0; j < this.numberOfCDAs; j++) {
+				if (this.CDAccounts[j].getAccountNumber() == ID) {
+					return this.CDAccounts[j];
+				}
+			}
+			
+			return null;
 		}
 }

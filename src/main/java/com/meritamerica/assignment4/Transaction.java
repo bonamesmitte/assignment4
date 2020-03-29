@@ -1,5 +1,7 @@
 package com.meritamerica.assignment4;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public abstract class Transaction {
@@ -8,17 +10,20 @@ public abstract class Transaction {
 	private double amount;
 	private Date date;
 	
-	public Transaction(BankAccount sourceAccount, BankAccount targetAccount, double amount) {
+	public Transaction() {
+		
+	}
+	
+	public Transaction(BankAccount sourceAccount, BankAccount targetAccount, double amount, Date date) {
 		this.sourceAccount = sourceAccount;
 		this.targetAccount = targetAccount;
 		this.amount = amount;
+		this.setTransactionDate(date);
 	}
 	
 	// this constructor is used when an account is created so there is no source account
-	public Transaction (BankAccount targetAccount, double amount) {
-		this.sourceAccount = null;
-		this.targetAccount = targetAccount;
-		this.amount = amount;
+	public Transaction(BankAccount targetAccount, double amount, Date date) {
+		this(null, targetAccount, amount, date);
 	}
 	                   
 	public BankAccount getSourceAccount() {
@@ -47,6 +52,7 @@ public abstract class Transaction {
 	public void setTransactionDate(java.util.Date date) {
 		this.date = date;
 	}
+	
 	public String  writeToString() {
 		String sourceAccNumb = sourceAccount != null ? String.valueOf(this.sourceAccount.getAccountNumber()) : "-1";
 		String targetAccNumb = String.valueOf(this.targetAccount.getAccountNumber());
@@ -56,9 +62,48 @@ public abstract class Transaction {
 		
 		return data;
 	};
-	public static Transaction readFromString(String transactionDataString);
-
 	
+	// -1,2,5000,01/02/2020
+	public static Transaction readFromString(String transactionDataString) throws ParseException {
+		String[] data = transactionDataString.split(",");
+		long sourceID = Long.valueOf(data[0]);
+		long targetID = Long.valueOf(data[1]);
+		double amount = Double.valueOf(data[2]);
+		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");	// Create a date formatter
+		Date date = formatter.parse(data[3]);
+		
+		BankAccount sourceAcc;
+		BankAccount targetAcc = MeritBank.findAccount(targetID);
+		Transaction tran = null;
+		
+		
+		
+		// if this is not a transfer transaction
+		if (data[0].equals("-1")) {
+			// if found that account
+			if (targetAcc != null) {
+				if (amount > 0) {
+					tran = new DepositTransaction(targetAcc, amount, date);
+					return tran;
+				} else {
+					tran = new WithdrawTransaction(targetAcc, amount, date);
+					return tran;
+				}
+			}
+		} else {
+			sourceAcc = MeritBank.findAccount(sourceID);
+			if (sourceAcc != null) {
+				tran = new TransferTransaction(sourceAcc, targetAcc, amount, date);
+				
+			}
+		}
+		
+		return tran;
+	}
+
+//	public static createTransaction() {
+//		
+//	}
 	
 	
 	
